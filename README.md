@@ -112,6 +112,25 @@ build\bin\llama-server.exe -hf ggml-org/Clef-Flash-GGUF:Q4_K_M -c 4096 -ngl 99
 Verify your GPU is detected first with `build\bin\llama-ls-sycl-device.exe` —
 you should see your Arc listed as a `level_zero` GPU device.
 
+## Path D — Ollama (simplest setup, and the image-input route)
+
+1. Install [Ollama for Windows](https://ollama.com/download) — **v0.40.1 or
+   newer** (earlier releases hit the clef bug; see Gotchas). It runs as a
+   background service; the API listens on `http://localhost:11434`.
+2. `ollama pull clef-flash`
+3. Smoke-test it:
+
+```bat
+curl.exe http://localhost:11434/v1/systemone -H "Content-Type: application/json" -d "{\"model\":\"clef-flash\",\"state\":\"Disk on db-02 is at 97%.\",\"questions\":{\"page\":{\"type\":\"noul\",\"instructions\":\"Should someone be paged?\"}}}"
+```
+
+Then use `decide-image.ps1` (below) for image input.
+
+Two honest caveats: Ollama's Intel Arc GPU support on Windows is
+experimental — verify it's actually using the GPU rather than silently
+running on CPU. And for raw speed on the Arc, Paths A–C (llama.cpp) remain
+faster; pick Ollama for simplicity and image input, not performance.
+
 ## Making requests
 
 The server exposes the decision endpoint at `http://localhost:8080/v1/systemone`.
