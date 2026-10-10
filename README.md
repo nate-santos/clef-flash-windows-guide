@@ -131,6 +131,14 @@ A healthy response returns probabilities for each option and
 `output_tokens: 0` (nothing is generated — that's the point). If the numbers
 are finite and roughly calibrated, it's working.
 
+### Image input (Ollama only)
+
+Ollama's `/v1/systemone` accepts images alongside the text state —
+llama.cpp's endpoint doesn't handle images yet. `decide-image.ps1` in this
+repo wraps it: pass an image file, a state string, and your questions as JSON
+(string or file); it base64-encodes the image and prints the answers.
+Requires Ollama v0.40.1+ on Windows (see Gotchas).
+
 ## Gotchas
 
 - **Ollama works on Windows from v0.40.1 up.** Older releases fail every
