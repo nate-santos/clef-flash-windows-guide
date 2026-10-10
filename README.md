@@ -133,10 +133,19 @@ are finite and roughly calibrated, it's working.
 
 ## Gotchas
 
-- **Don't use Ollama for this yet.** Its clef runner currently fails every
-  `/v1/systemone` request with `Clef: non-finite logit`
+- **Ollama works on Windows from v0.40.1 up.** Older releases fail every
+  request for clef-flash (9B Q8_0) with `Clef: non-finite logit`
   ([ollama/ollama#18769](https://github.com/ollama/ollama/issues/18769)).
-  The same weights run correctly under upstream llama.cpp.
+  (The bug only bites when the clef head's file offset passes 2 GiB, so
+  clef:27b Q4_K_M worked on `/v1/systemone` all along.)
+  Root cause: the Windows runner's libc++ truncated the clef head's weight-file
+  seek to 32 bits, so the head loaded backbone bytes (full of NaN/inf patterns)
+  as its weights. Fixed in
+  [ollama/ollama#18777](https://github.com/ollama/ollama/pull/18777), shipped in
+  Ollama v0.40.1 — update before trying the Ollama route. One residual:
+  `OLLAMA_LLM_LIBRARY=cpu`'s separate `Clef: cannot open model` error is not
+  covered by that fix. (Upstream llama.cpp remains the safe choice if you'd
+  rather not depend on the fix.)
 - **Text input only (for now).** The model itself accepts images, but
   llama.cpp's clef support doesn't handle image input yet.
 - **Cap your context.** The 64k window is real, but 64k of KV cache will not
